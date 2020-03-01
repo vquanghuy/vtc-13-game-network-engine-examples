@@ -31,7 +31,6 @@ public class TrisExtension extends SFSExtension
 	    
 	    addEventHandler(SFSEventType.USER_DISCONNECT, OnUserGoneHandler.class);
 	    addEventHandler(SFSEventType.USER_LEAVE_ROOM, OnUserGoneHandler.class);
-	    addEventHandler(SFSEventType.SPECTATOR_TO_PLAYER, OnSpectatorToPlayerHandler.class);
 	}
 	
 	@Override
@@ -129,37 +128,4 @@ public class TrisExtension extends SFSExtension
     {
 	    this.lastGameEndResponse = lastGameEndResponse;
     }
-	
-	void updateSpectator(User user)
-	{
-		ISFSObject resObj = new SFSObject();
-		
-		User player1 = getParentRoom().getUserByPlayerId(1);
-		User player2 = getParentRoom().getUserByPlayerId(2);
-		
-		resObj.putInt("t", whoseTurn == null ? 0 : whoseTurn.getPlayerId());
-		resObj.putBool("status", gameStarted);
-		resObj.putSFSArray("board", gameBoard.toSFSArray());
-		
-		if (player1 == null)
-			resObj.putInt("p1i", 0); // <--- indicates no P1
-		else
-		{
-			resObj.putInt("p1i", player1.getId());
-			resObj.putUtfString("p1n", player1.getName());
-		}
-		
-		if (player2 == null)
-			resObj.putInt("p2i", 0); // <--- indicates no P2
-		else
-		{
-			resObj.putInt("p2i", player2.getId());
-			resObj.putUtfString("p2n", player2.getName());
-			
-		}
-		
-		send("specStatus", resObj, user);
-	}
-	
-	
 }
