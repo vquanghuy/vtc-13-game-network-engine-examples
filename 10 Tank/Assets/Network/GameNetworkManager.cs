@@ -176,7 +176,7 @@ public class GameNetworkManager : MonoBehaviour
 		}
 		else
 		{
-			pos = new Vector3(0, 1, 0);
+			pos = new Vector3(0, 0, 0);
 			rot = Quaternion.identity;
 		}
 		
