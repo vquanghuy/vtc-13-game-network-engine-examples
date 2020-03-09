@@ -228,9 +228,10 @@ public class GameNetworkManager : MonoBehaviour
 		GameObject remotePlayer = GameObject.Instantiate(tankPrefab) as GameObject;
 		remotePlayer.transform.position = pos;
 		remotePlayer.transform.rotation = rot;
+		remotePlayer.tag = "Remote Player";
 
 		// Color and name
-		MeshRenderer[] renderers = localPlayer.GetComponentsInChildren<MeshRenderer>();
+		MeshRenderer[] renderers = remotePlayer.GetComponentsInChildren<MeshRenderer>();
 		playerColor = playerColors[colorId];
 
 		for (int i = 0; i < renderers.Length; i++)

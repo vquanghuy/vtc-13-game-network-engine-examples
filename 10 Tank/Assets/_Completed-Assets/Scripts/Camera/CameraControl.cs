@@ -33,10 +33,12 @@ namespace Complete
             var player = GameObject.FindWithTag("Player");
 
             if (player)
+            {
                 m_DesiredPosition = GameObject.FindWithTag("Player").transform.position;
 
-            // Smoothly transition to that position.
-            transform.position = Vector3.SmoothDamp(transform.position, m_DesiredPosition, ref m_MoveVelocity, m_DampTime);
+                // Smoothly transition to that position.
+                transform.position = Vector3.SmoothDamp(transform.position, m_DesiredPosition, ref m_MoveVelocity, m_DampTime);
+            }
         }
     }
 }
