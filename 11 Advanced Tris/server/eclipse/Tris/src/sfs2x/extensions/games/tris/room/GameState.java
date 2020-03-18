@@ -1,4 +1,4 @@
-package sfs2x.extensions.games.tris;
+package sfs2x.extensions.games.tris.room;
 
 public enum GameState
 {

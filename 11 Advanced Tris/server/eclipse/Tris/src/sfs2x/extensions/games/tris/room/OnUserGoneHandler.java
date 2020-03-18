@@ -1,4 +1,4 @@
-package sfs2x.extensions.games.tris;
+package sfs2x.extensions.games.tris.room;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class OnUserGoneHandler extends BaseServerEventHandler
     @Override
 	public void handleServerEvent(ISFSEvent event) throws SFSException
 	{
-		TrisExtension gameExt = (TrisExtension) getParentExtension();
+		TrisRoomExtension gameExt = (TrisRoomExtension) getParentExtension();
 		Room gameRoom = gameExt.getGameRoom();
 		
 		// Get event params

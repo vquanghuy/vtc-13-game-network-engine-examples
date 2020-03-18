@@ -1,4 +1,4 @@
-package sfs2x.extensions.games.tris;
+package sfs2x.extensions.games.tris.room;
 
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 

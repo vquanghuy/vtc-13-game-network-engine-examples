@@ -1,4 +1,4 @@
-package sfs2x.extensions.games.tris;
+package sfs2x.extensions.games.tris.room;
 
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.entities.Room;
@@ -7,7 +7,7 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
-public class TrisExtension extends SFSExtension
+public class TrisRoomExtension extends SFSExtension
 {
 	private TrisGameBoard gameBoard;
 	private User whoseTurn;

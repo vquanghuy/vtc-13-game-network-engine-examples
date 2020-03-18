@@ -1,4 +1,4 @@
-package sfs2x.extensions.games.tris;
+package sfs2x.extensions.games.tris.room;
 
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
@@ -23,7 +23,7 @@ public class MoveHandler extends BaseClientRequestHandler
 		if (!params.containsKey("x") || !params.containsKey("y"))
 			throw new SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
 		
-		TrisExtension gameExt = (TrisExtension) getParentExtension();
+		TrisRoomExtension gameExt = (TrisRoomExtension) getParentExtension();
 		TrisGameBoard board = gameExt.getGameBoard();
 		
 		int moveX = params.getInt("x");
@@ -68,7 +68,7 @@ public class MoveHandler extends BaseClientRequestHandler
 		
 	}
 	
-	private void checkBoardState(TrisExtension gameExt)
+	private void checkBoardState(TrisRoomExtension gameExt)
 	{
 		GameState state = gameExt.getGameBoard().getGameStatus(gameExt.getMoveCount());
 		
