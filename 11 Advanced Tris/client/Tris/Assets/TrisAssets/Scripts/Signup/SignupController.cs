@@ -47,6 +47,8 @@ public class SignupController : MonoBehaviour {
 			SceneManager.LoadScene("Login");
 			return;
 		}
+
+		enableSignupUI(true);
 	}
 
 	void Start()
@@ -71,10 +73,20 @@ public class SignupController : MonoBehaviour {
 
 	public void OnSignUpButtonClick()
 	{
+		string name = nameInput.text;
+		string email = emailInput.text;
+		string password = passwordInput.text;
+
+		if (name.Length == 0 || email.Length == 0 || password.Length == 0)
+		{
+			errorText.text = "Name / Email / Password must have at least 1 character";
+			return;
+		}
+
 		SFSObject obj = new SFSObject();
-		obj.PutText("name", "Huy1");
-		obj.PutText("email", "abc@xyz.com");
-		obj.PutText("password", "123");
+		obj.PutText("name", name);
+		obj.PutText("email", email);
+		obj.PutText("password", password);
 
 		sfs.Send(new ExtensionRequest("signup", obj));
 	}
@@ -103,10 +115,29 @@ public class SignupController : MonoBehaviour {
 	//----------------------------------------------------------
 	// SmartFoxServer event listeners
 	//----------------------------------------------------------
-	private void OnExtensionResponse(BaseEvent evt)
+	public void OnExtensionResponse(BaseEvent evt)
 	{
+		string cmd = (string)evt.Params["cmd"];
+		SFSObject dataObject = (SFSObject)evt.Params["params"];
+
+		switch (cmd)
+		{
+			case "signup":
+				{
+					if (dataObject.GetBool("success"))
+					{
+						reset();
+						sfs.Send(new LogoutRequest());
+						SceneManager.LoadScene("Login");
+					} else
+					{
+						errorText.text = dataObject.GetText("message");
+					}
+				}
+				break;
+		}
 	}
-	
+
 	private void OnLogin(BaseEvent evt) {
 		Debug.Log("Login as " + evt.Params["user"]);
 	}
