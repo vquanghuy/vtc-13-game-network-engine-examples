@@ -10,6 +10,8 @@ using Sfs2X.Logging;
 using Sfs2X.Util;
 using Sfs2X.Core;
 using Sfs2X.Entities;
+using Sfs2X.Entities.Data;
+using Sfs2X.Requests;
 
 public class LoginController : MonoBehaviour {
 
@@ -72,11 +74,13 @@ public class LoginController : MonoBehaviour {
 
 		sfs.AddEventListener(SFSEvent.CONNECTION, OnConnection);
 		sfs.AddEventListener(SFSEvent.CONNECTION_LOST, OnConnectionLost);
+		sfs.AddEventListener(SFSEvent.LOGIN, OnLogin);
+		sfs.AddEventListener(SFSEvent.LOGIN_ERROR, OnLoginError);
 
-		// Connect to SFS2X
+		// Kết nối đến SFS2x
 		sfs.Connect(cfg);
 	}
-	
+
 	// Update is called once per frame
 	void Update() {
 		if (sfs != null)
@@ -90,7 +94,16 @@ public class LoginController : MonoBehaviour {
 	public void OnLoginButtonClick() {
 		enableLoginUI(false);
 
-		sfs.Send(new Sfs2X.Requests.LoginRequest(loginNameInput.text));
+	}
+
+	public void OnSignUpButtonClick()
+	{
+		SFSObject obj = new SFSObject();
+		obj.PutText("name", "Huy1");
+		obj.PutText("email", "abc@xyz.com");
+		obj.PutText("password", "123");
+
+		sfs.Send(new ExtensionRequest("signup", obj));
 	}
 
 	//----------------------------------------------------------
@@ -122,6 +135,9 @@ public class LoginController : MonoBehaviour {
 			Debug.Log("SFS2X API version: " + sfs.Version);
 			Debug.Log("Connection mode is: " + sfs.ConnectionMode);
 
+			// Đăng nhập với tài khoản Guest
+			sfs.Send(new LoginRequest(""));
+
 			// Save reference to SmartFox instance; it will be used in the other scenes
 			SmartFoxConnection.Connection = sfs;
 		}
@@ -148,12 +164,14 @@ public class LoginController : MonoBehaviour {
 	}
 	
 	private void OnLogin(BaseEvent evt) {
-		// Remove SFS2X listeners and re-enable interface
-		reset();
+		Debug.Log("Login as " + evt.Params["user"]);
 
-		// Load lobby scene
-		//Application.LoadLevel("Lobby");
-		SceneManager.LoadScene("Lobby");
+		//// Remove SFS2X listeners and re-enable interface
+		//reset();
+
+		//// Load lobby scene
+		////Application.LoadLevel("Lobby");
+		//SceneManager.LoadScene("Lobby");
 	}
 	
 	private void OnLoginError(BaseEvent evt) {
