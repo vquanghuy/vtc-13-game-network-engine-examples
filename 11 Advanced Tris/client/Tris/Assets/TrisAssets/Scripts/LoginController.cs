@@ -14,7 +14,7 @@ using Sfs2X.Entities;
 public class LoginController : MonoBehaviour {
 
 	//----------------------------------------------------------
-	// Editor public properties
+	// Thuộc tính public của editor
 	//----------------------------------------------------------
 
 	[Tooltip("IP address or domain name of the SmartFoxServer 2X instance")]
@@ -23,35 +23,58 @@ public class LoginController : MonoBehaviour {
 	[Tooltip("TCP port listened by the SmartFoxServer 2X instance; used for regular socket connection in all builds except WebGL")]
 	public int TcpPort = 9933;
 
-	[Tooltip("WebSocket port listened by the SmartFoxServer 2X instance; used for in WebGL build only")]
-	public int WSPort = 8080;
-
 	[Tooltip("Name of the SmartFoxServer 2X Zone to join")]
-	public string Zone = "BasicExamples";
+	public string Zone = "TrisGame";
 
 	//----------------------------------------------------------
-	// UI elements
+	// Biến giao diện cho Login
 	//----------------------------------------------------------
 
-	public InputField nameInput;
+	public InputField loginNameInput;
 	public Button loginButton;
-	public Text errorText;
+	public Text loginErrorText;
 
 	//----------------------------------------------------------
-	// Private properties
+	// Biến giao diện cho Sign Up
+	//----------------------------------------------------------
+
+	public InputField signupNameInput;
+	public InputField signupEmailInput;
+	public InputField signupPasswordInput;
+	public Button signupButton;
+	public Text signupErrorText;
+
+	//----------------------------------------------------------
+	// Thuộc tính private
 	//----------------------------------------------------------
 
 	private SmartFox sfs;
 
 	//----------------------------------------------------------
-	// Unity calback methods
+	// Hàm của Unity
 	//----------------------------------------------------------
 
 	void Awake() {
 		Application.runInBackground = true;
 
-		// Enable interface
 		enableLoginUI(true);
+	}
+
+	void Start()
+	{
+		// Kết nối khi vừa vào scene
+		ConfigData cfg = new ConfigData();
+		cfg.Host = Host;
+		cfg.Port = TcpPort;
+		cfg.Zone = Zone;
+
+		sfs = new SmartFox();
+
+		sfs.AddEventListener(SFSEvent.CONNECTION, OnConnection);
+		sfs.AddEventListener(SFSEvent.CONNECTION_LOST, OnConnectionLost);
+
+		// Connect to SFS2X
+		sfs.Connect(cfg);
 	}
 	
 	// Update is called once per frame
@@ -66,31 +89,8 @@ public class LoginController : MonoBehaviour {
 
 	public void OnLoginButtonClick() {
 		enableLoginUI(false);
-		
-		// Set connection parameters
-		ConfigData cfg = new ConfigData();
-		cfg.Host = Host;
-		#if !UNITY_WEBGL
-		cfg.Port = TcpPort;
-		#else
-		cfg.Port = WSPort;
-		#endif
-		cfg.Zone = Zone;
-		
-		// Initialize SFS2X client and add listeners
-		#if !UNITY_WEBGL
-		sfs = new SmartFox();
-		#else
-		sfs = new SmartFox(UseWebSocket.WS_BIN);
-		#endif
-		
-		sfs.AddEventListener(SFSEvent.CONNECTION, OnConnection);
-		sfs.AddEventListener(SFSEvent.CONNECTION_LOST, OnConnectionLost);
-		sfs.AddEventListener(SFSEvent.LOGIN, OnLogin);
-		sfs.AddEventListener(SFSEvent.LOGIN_ERROR, OnLoginError);
-		
-		// Connect to SFS2X
-		sfs.Connect(cfg);
+
+		sfs.Send(new Sfs2X.Requests.LoginRequest(loginNameInput.text));
 	}
 
 	//----------------------------------------------------------
@@ -98,9 +98,9 @@ public class LoginController : MonoBehaviour {
 	//----------------------------------------------------------
 	
 	private void enableLoginUI(bool enable) {
-		nameInput.interactable = enable;
+		loginNameInput.interactable = enable;
 		loginButton.interactable = enable;
-		errorText.text = "";
+		loginErrorText.text = "";
 	}
 	
 	private void reset() {
@@ -124,9 +124,6 @@ public class LoginController : MonoBehaviour {
 
 			// Save reference to SmartFox instance; it will be used in the other scenes
 			SmartFoxConnection.Connection = sfs;
-
-			// Login
-			sfs.Send(new Sfs2X.Requests.LoginRequest(nameInput.text));
 		}
 		else
 		{
@@ -134,7 +131,7 @@ public class LoginController : MonoBehaviour {
 			reset();
 
 			// Show error message
-			errorText.text = "Connection failed; is the server running at all?";
+			loginErrorText.text = "Connection failed; is the server running at all?";
 		}
 	}
 	
@@ -146,7 +143,7 @@ public class LoginController : MonoBehaviour {
 
 		if (reason != ClientDisconnectionReason.MANUAL) {
 			// Show error message
-			errorText.text = "Connection was lost; reason is: " + reason;
+			loginErrorText.text = "Connection was lost; reason is: " + reason;
 		}
 	}
 	
@@ -167,6 +164,6 @@ public class LoginController : MonoBehaviour {
 		reset();
 		
 		// Show error message
-		errorText.text = "Login failed: " + (string) evt.Params["errorMessage"];
+		loginErrorText.text = "Login failed: " + (string) evt.Params["errorMessage"];
 	}
 }

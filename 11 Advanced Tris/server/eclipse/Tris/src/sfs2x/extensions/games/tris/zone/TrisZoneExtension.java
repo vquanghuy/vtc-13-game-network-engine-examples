@@ -7,6 +7,7 @@ public class TrisZoneExtension extends SFSExtension {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
+		trace("Init TrisZoneExtension");
 		addRequestHandler("signup", SignUpHandler.class);
 	}
 
