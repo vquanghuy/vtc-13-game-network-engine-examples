@@ -32,19 +32,10 @@ public class LoginController : MonoBehaviour {
 	// Biến giao diện cho Login
 	//----------------------------------------------------------
 
-	public InputField loginNameInput;
+	public InputField nameInput;
+	public InputField passwordInput;
 	public Button loginButton;
-	public Text loginErrorText;
-
-	//----------------------------------------------------------
-	// Biến giao diện cho Sign Up
-	//----------------------------------------------------------
-
-	public InputField signupNameInput;
-	public InputField signupEmailInput;
-	public InputField signupPasswordInput;
-	public Button signupButton;
-	public Text signupErrorText;
+	public Text errorText;
 
 	//----------------------------------------------------------
 	// Thuộc tính private
@@ -60,25 +51,30 @@ public class LoginController : MonoBehaviour {
 		Application.runInBackground = true;
 
 		enableLoginUI(true);
+
+		if (SmartFoxConnection.IsInitialized)
+		{
+			sfs = SmartFoxConnection.Connection;
+		}
+		else
+		{
+			// Kết nối khi vừa vào scene
+			ConfigData cfg = new ConfigData();
+			cfg.Host = Host;
+			cfg.Port = TcpPort;
+			cfg.Zone = Zone;
+
+			sfs = new SmartFox();
+			sfs.Connect(cfg);
+		}
 	}
 
 	void Start()
 	{
-		// Kết nối khi vừa vào scene
-		ConfigData cfg = new ConfigData();
-		cfg.Host = Host;
-		cfg.Port = TcpPort;
-		cfg.Zone = Zone;
-
-		sfs = new SmartFox();
-
 		sfs.AddEventListener(SFSEvent.CONNECTION, OnConnection);
 		sfs.AddEventListener(SFSEvent.CONNECTION_LOST, OnConnectionLost);
 		sfs.AddEventListener(SFSEvent.LOGIN, OnLogin);
 		sfs.AddEventListener(SFSEvent.LOGIN_ERROR, OnLoginError);
-
-		// Kết nối đến SFS2x
-		sfs.Connect(cfg);
 	}
 
 	// Update is called once per frame
@@ -94,16 +90,14 @@ public class LoginController : MonoBehaviour {
 	public void OnLoginButtonClick() {
 		enableLoginUI(false);
 
+		// TODO: handle login click
+		Debug.Log("TODO: Handle login click");
 	}
 
 	public void OnSignUpButtonClick()
 	{
-		SFSObject obj = new SFSObject();
-		obj.PutText("name", "Huy1");
-		obj.PutText("email", "abc@xyz.com");
-		obj.PutText("password", "123");
-
-		sfs.Send(new ExtensionRequest("signup", obj));
+		reset();
+		SceneManager.LoadScene("Signup");
 	}
 
 	//----------------------------------------------------------
@@ -111,14 +105,14 @@ public class LoginController : MonoBehaviour {
 	//----------------------------------------------------------
 	
 	private void enableLoginUI(bool enable) {
-		loginNameInput.interactable = enable;
+		nameInput.interactable = enable;
 		loginButton.interactable = enable;
-		loginErrorText.text = "";
+		errorText.text = "";
 	}
 	
 	private void reset() {
-		// Remove SFS2X listeners
-		// This should be called when switching scenes, so events from the server do not trigger code in this scene
+		// Cần phải gọi khi chuyển giữa các scene,
+		// để tránh trường hợp 1 sự kiện trigger nhiều event ở nhiều scene 
 		sfs.RemoveAllEventListeners();
 		
 		// Enable interface
@@ -135,9 +129,6 @@ public class LoginController : MonoBehaviour {
 			Debug.Log("SFS2X API version: " + sfs.Version);
 			Debug.Log("Connection mode is: " + sfs.ConnectionMode);
 
-			// Đăng nhập với tài khoản Guest
-			sfs.Send(new LoginRequest(""));
-
 			// Save reference to SmartFox instance; it will be used in the other scenes
 			SmartFoxConnection.Connection = sfs;
 		}
@@ -147,7 +138,7 @@ public class LoginController : MonoBehaviour {
 			reset();
 
 			// Show error message
-			loginErrorText.text = "Connection failed; is the server running at all?";
+			errorText.text = "Connection failed; is the server running at all?";
 		}
 	}
 	
@@ -159,11 +150,12 @@ public class LoginController : MonoBehaviour {
 
 		if (reason != ClientDisconnectionReason.MANUAL) {
 			// Show error message
-			loginErrorText.text = "Connection was lost; reason is: " + reason;
+			errorText.text = "Connection was lost; reason is: " + reason;
 		}
 	}
 	
 	private void OnLogin(BaseEvent evt) {
+		Debug.Log("Login success");
 		Debug.Log("Login as " + evt.Params["user"]);
 
 		//// Remove SFS2X listeners and re-enable interface
@@ -182,6 +174,6 @@ public class LoginController : MonoBehaviour {
 		reset();
 		
 		// Show error message
-		loginErrorText.text = "Login failed: " + (string) evt.Params["errorMessage"];
+		errorText.text = "Login failed: " + (string) evt.Params["errorMessage"];
 	}
 }
